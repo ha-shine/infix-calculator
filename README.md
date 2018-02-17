@@ -4,6 +4,8 @@ Infix-Calculator is a interactive calculator written in Rust.
 Currently it supports decimals and round brackets.
 This is part of a series of small projects I will be doing in Rust to make myself familiar with the language.
 
+[![Build Status](https://travis-ci.org/ha-shine/infix-calculator.svg?branch=master)](https://travis-ci.org/ha-shine/infix-calculator)
+
 ### Screenshot of infix-calculator
 
 ![Infix-calculator screenshot](./images/ss.png "Infix-calculator screenshot")
