@@ -4,6 +4,7 @@ extern crate lazy_static;
 use std::collections::HashMap;
 use std::error::Error;
 
+/// A vector/queue of strings to represent Reverse Polish Notation
 pub struct RPNQueue(pub Vec<String>);
 
 type ParseError = Box<Error>;
@@ -21,6 +22,16 @@ lazy_static! {
 }
 
 impl RPNQueue {
+    /// Constructs a new `Result<RPNQueue>` using a string with infix notation
+    /// with [shunting-yard algorithm](https://en.wikipedia.org/wiki/Shunting-yard_algorithm).
+    /// Supports decimals and round brackets only.
+    ///
+    /// # Examples
+    /// ```
+    /// use infix_calculator::RPNQueue;
+    ///
+    /// let queue = RPNQueue::from_infix_string(&"1.0 + 3 - (4 / 5)");
+    /// ```
     pub fn from_infix_string(input: &str) -> ParseResult<Self> {
         let mut output = RPNQueue(Vec::new());
         let mut stack = Vec::new();
@@ -72,6 +83,15 @@ impl RPNQueue {
         Ok(output)
     }
 
+    /// Calculate result for given RPNQueue.
+    ///
+    /// # Example
+    /// ```
+    /// use infix_calculator::RPNQueue;
+    ///
+    /// let mut queue = RPNQueue::from_infix_string(&"1.0 + 3 - (4 / 5)").unwrap();
+    /// assert_eq!(queue.calculate().unwrap(), 3.2);
+    /// ```
     pub fn calculate(&mut self) -> ParseResult<f64> {
         let mut numbers = Vec::new();
         for x in self.0.iter() {
