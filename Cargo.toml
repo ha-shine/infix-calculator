@@ -1,0 +1,7 @@
+[package]
+name = "infix-calculator"
+version = "0.1.0"
+authors = ["Htet Aung Shine <h@shine.rocks>"]
+
+[dependencies]
+lazy_static = "1.0"
