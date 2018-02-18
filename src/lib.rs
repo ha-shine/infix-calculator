@@ -2,13 +2,9 @@
 extern crate lazy_static;
 
 use std::collections::HashMap;
-use std::error::Error;
 
 /// A vector/queue of strings to represent Reverse Polish Notation
 pub struct RPNQueue(pub Vec<String>);
-
-type ParseError = Box<Error>;
-type ParseResult<T> = Result<T, ParseError>;
 
 lazy_static! {
     static ref PRECEDENCE: HashMap<String, u8> = {
@@ -32,7 +28,7 @@ impl RPNQueue {
     ///
     /// let queue = RPNQueue::from_infix_string(&"1.0 + 3 - (4 / 5)");
     /// ```
-    pub fn from_infix_string(input: &str) -> ParseResult<Self> {
+    pub fn from_infix_string(input: &str) -> Result<Self, String> {
         let mut output = RPNQueue(Vec::new());
         let mut stack = Vec::new();
         let mut buffer = String::new();
@@ -72,7 +68,7 @@ impl RPNQueue {
                     buffer.push(token);
                 }
                 invalid => {
-                    return Err(ParseError::from(format!("Invalid token: {}", invalid)))
+                    return Err(format!("Invalid token: {}", invalid))
                 }
             }
         }
@@ -92,36 +88,36 @@ impl RPNQueue {
     /// let mut queue = RPNQueue::from_infix_string(&"1.0 + 3 - (4 / 5)").unwrap();
     /// assert_eq!(queue.calculate().unwrap(), 3.2);
     /// ```
-    pub fn calculate(&mut self) -> ParseResult<f64> {
+    pub fn calculate(&mut self) -> Result<f64, String> {
         let mut numbers = Vec::new();
         for x in self.0.iter() {
             match x.as_ref() {
                 "+" | "-" | "*" | "/" => {
-                    let second = numbers.pop().ok_or(ParseError::from("not enough input"))?;
-                    let first = numbers.pop().ok_or(ParseError::from("not enough input"))?;
+                    let second = numbers.pop().ok_or("not enough input".to_string())?;
+                    let first = numbers.pop().ok_or("not enough input".to_string())?;
 
                     let result = compute_result(first, second, x)?;
                     numbers.push(result);
                 }
                 number => {
-                    let number: f64 = number.parse::<f64>()?;
+                    let number: f64 = number.parse::<f64>().or(Err(format!("Invalid token: {}", number)))?;
                     numbers.push(number);
                 }
             }
         }
 
-        let result = numbers.pop().ok_or(ParseError::from("not enough input"))?;
+        let result = numbers.pop().ok_or("not enough input".to_string())?;
         Ok(result)
     }
 }
 
-fn compute_result(first: f64, second: f64, op: &str) -> ParseResult<f64> {
+fn compute_result(first: f64, second: f64, op: &str) -> Result<f64, String> {
     match op {
         "+" => Ok(first + second),
         "-" => Ok(first - second),
         "*" => Ok(first * second),
         "/" => Ok(first / second),
-        _ => Err(ParseError::from(format!("invalid operator: {}", op)))
+        _ => Err(format!("invalid operator: {}", op))
     }
 }
 
